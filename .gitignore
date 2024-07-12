@@ -1,3 +1,4 @@
 keys.conf
 watcher_env
 watched_directory
+__pycache__
