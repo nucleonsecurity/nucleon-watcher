@@ -6,14 +6,13 @@ import requests
 import hashlib
 import json
 import argparse
-from operations import Detector , Responder
+from operations import *
 
 # Read the API key from the keys.conf file
 keys = []
 with open(".\keys.conf", "r") as file:
     keys = json.load(file)["malprob_key"]
 API_KEY = keys[0]
-
 
 class Watcher:
     # DIRECTORY_TO_WATCH = "./watched_directory"
@@ -63,10 +62,16 @@ class Handler(FileSystemEventHandler):
                 # responder.quarantine_file()
                 # responder.send_alert()
                 print("File is malicious")
+                responder.quarantine()
+                responder.delete_file()
             elif result['label'] == 'suspicious':
                 print("File is suspecious")
+                responder.quarantine()
+                responder.delete_file()
             elif result['label'] == 'benign':
                 print("File is benign")
+                responder = Responder(file_path=event.src_path)
+                
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Nucleon Watcher')

@@ -6,7 +6,13 @@ import os
 import shutil
 import zipfile
 import time
-# import pyminizip
+
+def get_file_sha256(file_path):
+    payload = open(file_path,'rb').read()
+    sha256 = hashlib.sha256()
+    sha256.update(payload)
+    return sha256
+
 
 class Detector:
     def __init__(self,api_key,file_path):
@@ -108,14 +114,22 @@ class Responder:
         except Exception as e:
             print(f"An error occurred: {e}")
 
-    def zip_with_password(self, zip_path,hashcode, password):
-        """Zips the file with a password."""
-        if os.path.exists(self.file_path):
-            # Compression level: 5, 0 is no compression, 9 is best compression
-            compression_level = 9
-            pyminizip.compress(self.file_path, None, zip_path, password, compression_level)
-            print(f"File has been zipped with password protection at {zip_path}.")
-        else:
-            print("File does not exist.")
+    def quarantine(self):
+        file_path = self.file_path
+        hash = get_file_sha256(self.file_path)
+        output_zip = f'./infected_{hash}.zip'
+
+        if not os.path.isfile(file_path):
+            print(f"Error: {file_path} does not exist.")
+            return
+    
+    # Create a zip file
+        with zipfile.ZipFile(output_zip, 'w') as zipf:
+            # Add the file to the zip file
+            zipf.write(file_path, os.path.basename(file_path))
+            print(f"{file_path} has been zipped into {output_zip}")
+
+
+
 
     
