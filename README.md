@@ -30,16 +30,23 @@ source watcher_env/bin/activate
 pip install -r requirements.txt
 ```
 
-
-## using docker
-To do
 # Getting Started
+
+## Get your API key 
+1. Go to [Nucleon Malprob](https://malprob.io/).
+2. Create an account [Sign-up](https://malprob.io/signup). 
+3. Get your API key from [Your account](https://malprob.io/account).
+4. Create a file named `.env` in the root directory of the project.
+5. Plug your api key in the `.env` file:
+```bash
+malprob_key="your_api_key"
+```
 ## Help 
 ```bash
-python Watcher.py --help
+python src/watcher.py --help
 ```
 ## Usage
 to run the watcher on a specific folder :
 ```bash
-python Watcher.py --watched_directory .\watched_directory
+python src/watcher.py --watched_directory watched_directory
 ```

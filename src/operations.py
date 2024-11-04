@@ -11,7 +11,7 @@ def get_file_sha256(file_path):
     payload = open(file_path,'rb').read()
     sha256 = hashlib.sha256()
     sha256.update(payload)
-    return sha256
+    return sha256.hexdigest()
 
 
 class Detector:
@@ -53,8 +53,10 @@ class Detector:
                 self.send_file_to_scan(self.file_path)
             else:
                 print("Error", f"Request failed with status code: {response.status_code}\n{response.text}")
+                return error
         except Exception as e:
-            print("Error", f"An error occurred: {str(e)}")
+            print("Error", f"An error while scaning file: {str(e)}")
+            return None
 
     def send_file_to_scan(self):
         try:
@@ -66,7 +68,7 @@ class Detector:
                     timeout=120,
                 )
             if response.status_code == 200:
-                print("Success", "File sent for scanning successfully.")
+                print("File successfully sent for scanning .")
             else:
                 print("Error", f"Request failed with status code: {response.status_code}\n{response.text}")
         except Exception as e:
@@ -116,8 +118,8 @@ class Responder:
 
     def quarantine(self):
         file_path = self.file_path
-        hash = get_file_sha256(self.file_path)
-        output_zip = f'./infected_{hash}.zip'
+        sha256 = get_file_sha256(self.file_path)
+        output_zip = f'./infected_{sha256}.zip'
 
         if not os.path.isfile(file_path):
             print(f"Error: {file_path} does not exist.")

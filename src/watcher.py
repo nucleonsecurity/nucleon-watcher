@@ -8,14 +8,13 @@ import json
 import argparse
 from operations import *
 
-# Read the API key from the keys.conf file
-keys = []
-with open(".\keys.conf", "r") as file:
-    keys = json.load(file)["malprob_key"]
-API_KEY = keys[0]
+
+from dotenv import load_dotenv
+load_dotenv() 
+API_KEY = os.environ.get("malprob_key")
+
 
 class Watcher:
-    # DIRECTORY_TO_WATCH = "./watched_directory"
 
     def __init__(self,watched_directory):
         self.observer = Observer()
@@ -43,9 +42,9 @@ class Handler(FileSystemEventHandler):
         
         elif event.event_type == 'modified' or event.event_type == 'created':
             # Added example to handle modified files
-            print(f"Received event - {event.src_path}.")
+            print(f"New file is tracked - {event.src_path}.")
             detector = Detector(api_key=API_KEY,file_path=event.src_path)
-            print(detector.get_file_hash())
+            print('File sha256 is :',detector.get_file_hash())
             try: 
                 detector.send_file_to_scan()
             except Exception as e:
@@ -57,23 +56,24 @@ class Handler(FileSystemEventHandler):
             except Exception as e:
                 print("Error", f"An error occurred: {str(e)}")
             # print(type(result))
-            if result['label'] == 'malware':
-                # responder = Responder(file_path=event.src_path)
-                # responder.quarantine_file()
-                # responder.send_alert()
+            responder = Responder(file_path=event.src_path)
+            label = result.get('label',None)
+            if label == 'malware':
+                
                 print("File is malicious")
                 responder.quarantine()
-                responder.delete_file()
-            elif result['label'] == 'suspicious':
+            elif label == 'suspicious':
                 print("File is suspecious")
                 responder.quarantine()
-                responder.delete_file()
-            elif result['label'] == 'benign':
+            elif label == 'benign':
                 print("File is benign")
-                responder = Responder(file_path=event.src_path)
+                
+            else:
+                print("Error", "An error occurred while processing the file.")
                 
 
 if __name__ == '__main__':
+    print("Starting Watcher, watching directory for changes ...")
     parser = argparse.ArgumentParser(description='Nucleon Watcher')
     parser.add_argument('--watched_directory', type=str, help='Directory to watch')
     args = parser.parse_args()
