@@ -1,0 +1,8 @@
+services:
+  watcher:
+    image: nucleon-watcher:latest
+    build: .
+    environment:
+      - malprob_key=<malprob_key>
+    volumes:
+      - ./watched_directory:/app/watched_directory
