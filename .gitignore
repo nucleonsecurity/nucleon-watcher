@@ -23,3 +23,5 @@ MANIFEST
 tests/
 *.zip
 .env
+*.log
+watched_dir
